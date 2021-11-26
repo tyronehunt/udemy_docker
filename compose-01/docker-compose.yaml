@@ -1,0 +1,58 @@
+version: "3.8"
+services:
+  mongodb:
+    image: 'mongo'
+    volumes:
+      - data:/data/db
+    # environment:
+      # MONGO_INITDB_ROOT_USERNAME: tyrone
+      # MONGO_INITDB_ROOT_PASSWORD: password
+    env_file:
+      - ./env/mongo.env
+    # networks:
+      # can do this, but don't have to, as all services listed will automatically be added to a network
+
+  backend:
+    build: ./backend
+
+    # if you need to specify a nested file with bespoke name
+    # build:
+      # context: ./backend
+      # dockerfile: Dockerfile-dev
+      # args:
+      #   SOME-ARG: 1
+
+    ports:
+      - '80:80' # host:internal
+
+    volumes:
+      - logs:/app/logs #named volume
+      - ./backend:/app # bind mount, but don't need absolute path for backend any more like we did in Dockerfile
+      - /app/node_modules # anonymous volume
+
+    env_file:
+      - ./env/backend.env
+
+    # Not required when running Docker commands in terminal, but in Compose we need to specify if backend requires another service
+    depends_on:
+      - mongodb
+
+  frontend:
+    build: ./frontend
+    ports: 
+      - '3000:3000'
+    volumes:
+      - ./frontend/src:/app/src
+    
+      # Start frontend container in interactive mode, i.e. -it
+    stdin_open: true
+    tty: true
+    
+    depends_on:
+      - backend
+      
+
+# named volumes have to be listed here to be created for the services. Anonymous volumes/bind mounts not specified here.
+volumes:
+  data:
+  logs:
