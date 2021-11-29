@@ -4,6 +4,7 @@ services:
     image: 'mongo'
     volumes:
       - data:/data/db
+    # container_name: mongodb #otherwise default is directory_name-service_name
     # environment:
       # MONGO_INITDB_ROOT_USERNAME: tyrone
       # MONGO_INITDB_ROOT_PASSWORD: password
