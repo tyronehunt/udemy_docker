@@ -1,0 +1,24 @@
+# Name entire node stage as 'build'
+FROM node:14-alpine as build
+
+WORKDIR /app
+
+COPY package.json .
+
+RUN npm install
+
+COPY . .
+
+# Not CMD, as we're doing multi-stage builds
+RUN npm run build
+
+# Start of 2nd stage
+FROM nginx:stable-alpine
+
+# Take the output from first stage with --from=build and copy the container file path /app/build to the NGINX location
+COPY --from=build /app/build /usr/share/nginx/html
+
+# See NGINX docs for port and CMD
+EXPOSE 80
+
+CMD ["nginx", "-g", "daemon off;"]

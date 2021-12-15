@@ -1,0 +1,35 @@
+version: '3.8'
+services:
+  # IF RUNNING LOCAL MONGO CONTAINER:
+  # mongodb:
+  #   image: 'mongo'
+  #   volumes:
+  #     - data:/data/db
+  #   env_file:
+  #     - ./env/mongo.env
+  backend:
+    build: ./backend
+    ports:
+      - '80:80'
+    # locally we use a bind mount to create the backend in the container and an anonmyous volume to node override node_modules
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    env_file:
+      - ./env/backend.env
+    # depends_on:
+    #   - mongodb
+  frontend:
+    build: ./frontend
+    ports:
+      - '3000:3000'
+    volumes:
+      - ./frontend/src:/app/src
+    stdin_open: true
+    tty: true
+    depends_on:
+      - backend
+
+# VOLUME only required if using mongodb service, which was only used for local container setup
+# volumes:
+#   data:
